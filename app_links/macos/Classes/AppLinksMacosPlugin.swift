@@ -24,27 +24,28 @@ public class AppLinksMacosPlugin: NSObject, FlutterPlugin, FlutterStreamHandler,
 
     registrar.addApplicationDelegate(instance)
   }
-  
+
   public func getUniversalLink(_ userActivity: NSUserActivity) -> URL? {
     guard userActivity.activityType == NSUserActivityTypeBrowsingWeb,
         let url = userActivity.webpageURL,
         let _ = NSURLComponents(url: url, resolvingAgainstBaseURL: true) else {
         return nil
     }
-    
+
     return url
   }
 
   // Custom URL schemes
   public func handleWillFinishLaunching(_ notification: Notification) {
-    NSAppleEventManager.shared().setEventHandler(
-      self,
-      andSelector: #selector(handleEvent(_:with:)),
-      forEventClass: AEEventClass(kInternetEventClass),
-      andEventID: AEEventID(kAEGetURL)
-    )
+    // Disable for now as this interferes with application delegate set through NativeShell.
+    // NSAppleEventManager.shared().setEventHandler(
+    //   self,
+    //   andSelector: #selector(handleEvent(_:with:)),
+    //   forEventClass: AEEventClass(kInternetEventClass),
+    //   andEventID: AEEventID(kAEGetURL)
+    // )
   }
-  
+
   // Universal links
 //  public override func application(_ application: NSApplication,
 //                                   continue userActivity: NSUserActivity,
@@ -53,9 +54,9 @@ public class AppLinksMacosPlugin: NSObject, FlutterPlugin, FlutterStreamHandler,
 //    guard let url = getUniversalLink(userActivity) else {
 //      return false
 //    }
-//    
+//
 //    handleLink(link: url.absoluteString)
-//    
+//
 //    return false
 //  }
 
@@ -78,7 +79,7 @@ public class AppLinksMacosPlugin: NSObject, FlutterPlugin, FlutterStreamHandler,
     eventSink events: @escaping FlutterEventSink) -> FlutterError? {
 
     self.eventSink = events
-      
+
     if (!initialLinkSent && initialLink != nil) {
       initialLinkSent = true
       events(initialLink!)
@@ -108,10 +109,10 @@ public class AppLinksMacosPlugin: NSObject, FlutterPlugin, FlutterStreamHandler,
     if (initialLink == nil) {
       initialLink = link
     }
-    
+
     if let _eventSink = eventSink {
       initialLinkSent = true
       _eventSink(latestLink)
-    }    
+    }
   }
 }
